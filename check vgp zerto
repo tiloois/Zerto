@@ -1,0 +1,50 @@
+Aquí tienes un ejemplo de un script en PowerShell que utiliza los cmdlets de Zerto para monitorizar el estado de los Virtual Protection Groups (VPG):
+
+```powershell
+# Importar el módulo de Zerto
+Import-Module -Name Zerto
+
+# Configurar la conexión al servidor Zerto
+$zertoServer = 'servidor-zerto'
+$zertoUser = 'usuario-zerto'
+$zertoPassword = 'contraseña-zerto'
+Connect-Zerto -ZvmServiceHost $zertoServer -ZvmCredentials (Get-Credential -UserName $zertoUser -Message "Ingrese la contraseña de Zerto") -ErrorAction Stop
+
+try {
+    # Obtener la lista de VPG
+    $vpgList = Get-ZertoVpg
+
+    # Recorrer los VPG y mostrar su estado
+    foreach ($vpg in $vpgList) {
+        Write-Host "VPG: $($vpg.Name)"
+        Write-Host "  Estado: $($vpg.Status)"
+        Write-Host "  Fuente: $($vpg.SourceSite)"
+        Write-Host "  Destino: $($vpg.TargetSite)"
+        Write-Host "  Punto de recuperación más reciente: $($vpg.LastCheckpointDate)"
+        Write-Host "  Replicación inversa habilitada: $($vpg.ReverseProtection)"
+
+        # Obtener el estado de cada VM en el VPG
+        $vmList = Get-ZertoVpgVm -Vpg $vpg
+        foreach ($vm in $vmList) {
+            Write-Host "    VM: $($vm.VmName)"
+            Write-Host "      Estado: $($vm.Status)"
+            Write-Host "      Punto de recuperación más reciente: $($vm.LastCheckpointDate)"
+        }
+
+        Write-Host ""
+    }
+}
+catch {
+    Write-Host "Error al obtener el estado de los VPG: $($_.Exception.Message)"
+}
+finally {
+    # Desconectar del servidor Zerto
+    Disconnect-Zerto
+}
+```
+
+Asegúrate de tener instalado el módulo de Zerto antes de ejecutar este script. Puedes instalarlo utilizando el administrador de paquetes de PowerShell mediante el comando `Install-Module -Name Zerto`.
+
+Reemplaza `'servidor-zerto'`, `'usuario-zerto'` y `'contraseña-zerto'` con la dirección del servidor Zerto, el nombre de usuario y la contraseña de autenticación correspondientes.
+
+El script establece una conexión con el servidor Zerto, obtiene la lista de VPG y recorre cada uno para mostrar su estado. Luego, obtiene el estado de cada VM dentro del VPG y lo muestra en la salida.
