@@ -1,0 +1,119 @@
+como conecto a un ZVM de Zerto usando comandos REST API, una vez conectado quiero consultar el estado de los VPGs y las VMs protegidas, 
+el listado de VPGs y VMs quiero obtenerlo en una tabla en formato html
+
+Aquí tienes un ejemplo de script en PowerShell que se conecta a un ZVM de Zerto utilizando comandos REST API, consulta el estado de 
+los VPGs y las VMs protegidas, y genera una tabla en formato HTML con el listado de VPGs y VMs:
+
+```powershell
+# Importar el módulo de PowerShell para consumir servicios REST
+Import-Module -Name PowerShellGet
+Install-Module -Name PowerShellRestMethod -Force
+
+# Configurar la información de autenticación para la API REST de Zerto
+$usuario = "usuario"
+$contrasena = "contraseña"
+$baseURL = "https://<IP_ZVM>/v1"
+
+# Función para realizar una solicitud REST a la API de Zerto
+function Invoke-ZertoAPI {
+    param (
+        [string]$Endpoint,
+        [string]$Method = "GET",
+        [object]$Body = $null
+    )
+
+    $headers = @{
+        "Accept" = "application/json"
+    }
+
+    $url = "$baseURL$Endpoint"
+
+    try {
+        $response = Invoke-RestMethod -Uri $url -Headers $headers -Method $Method -Body $Body -Credential (Get-Credential -UserName $usuario -Password $contrasena)
+        return $response
+    } catch {
+        Write-Host "Error al realizar la solicitud REST a $url: $_"
+        return $null
+    }
+}
+
+# Obtener el estado de los VPGs
+$endpointVPGs = "/vpgs"
+$responseVPGs = Invoke-ZertoAPI -Endpoint $endpointVPGs
+
+if ($responseVPGs) {
+    # Obtener el estado de las VMs protegidas
+    $endpointVMsProtegidas = "/vms"
+    $responseVMsProtegidas = Invoke-ZertoAPI -Endpoint $endpointVMsProtegidas
+
+    if ($responseVMsProtegidas) {
+        # Crear una lista para almacenar los datos de los VPGs y VMs protegidas
+        $listaDatos = @()
+
+        # Recorrer los VPGs y obtener los datos relevantes
+        foreach ($vpg in $responseVPGs) {
+            $datosVPG = @{
+                "VPGName" = $vpg.VPGName
+                "Status" = $vpg.State.Status
+            }
+
+            # Recorrer las VMs protegidas en el VPG actual y obtener los datos relevantes
+            $vmsProtegidas = $responseVMsProtegidas | Where-Object { $_.VPGIdentifier -eq $vpg.VPGIdentifier }
+
+            foreach ($vm in $vmsProtegidas) {
+                $datosVM = @{
+                    "VMName" = $vm.VMName
+                    "Status" = $vm.State.Status
+                }
+
+                $listaDatos += New-Object PSObject -Property ($datosVPG + $datosVM)
+            }
+        }
+
+        # Generar la tabla en formato HTML
+        $tablaHTML = $listaDatos | ConvertTo-Html -Property "VPGName", "VMName", "Status" -As Table | Out-String
+
+        # Crear el contenido HTML completo
+        $htmlCompleto = @"
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                table {
+                    border-collapse: collapse;
+                }
+                th, td {
+                    border: 1px solid black;
+                    padding: 5px;
+                }
+            </style>
+        </head>
+        <body>
+            <h1>Listado de VPG
+
+s y VMs Protegidas</h1>
+            $tablaHTML
+        </body>
+        </html>
+"@
+
+        # Guardar el contenido HTML en un archivo
+        $rutaSalidaHTML = "C:\Ruta\Archivo\vm_protegidas.html"
+        $htmlCompleto | Out-File -FilePath $rutaSalidaHTML
+
+        Write-Host "Exportación completada. El listado de VPGs y VMs protegidas se ha guardado en $rutaSalidaHTML."
+    } else {
+        Write-Host "No se pudo obtener la lista de VMs protegidas."
+    }
+} else {
+    Write-Host "No se pudo obtener la lista de VPGs."
+}
+```
+
+Asegúrate de reemplazar `<IP_ZVM>` con la dirección IP del ZVM de Zerto al que deseas conectarte. También, proporciona el nombre de usuario y 
+la contraseña correctos en las variables `$usuario` y `$contrasena` respectivamente.
+
+El script obtiene el estado de los VPGs y las VMs protegidas mediante solicitudes REST a la API de Zerto. Luego, crea una tabla HTML con los 
+datos relevantes y la guarda en un archivo especificado en la variable `$rutaSalidaHTML`.
+
+Recuerda adaptar el script según tus necesidades específicas y realizar los ajustes correspondientes en las propiedades que deseas mostrar en la tabla HTML.
