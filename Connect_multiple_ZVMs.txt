@@ -1,0 +1,47 @@
+genera un script obtener la lista de IPs de ZVM desde un fichero de texto, 
+conectar a cada uno de ellos con comando cmdlet para obtener la lista de VMs protegidas
+
+
+Aquí tienes un ejemplo de script en PowerShell que puede ayudarte a obtener la lista de IPs de ZVM desde un archivo de texto y luego conectarse 
+a cada una de ellas utilizando cmdlets para obtener la lista de VMs protegidas:
+
+powershell
+Copy code
+# Ruta al archivo de texto que contiene las IPs de ZVM (una IP por línea)
+$archivoIPs = "C:\Ruta\Archivo\ips_zvm.txt"
+
+# Leer el archivo de texto y obtener las IPs de ZVM
+$ipsZVM = Get-Content $archivoIPs
+
+# Recorrer cada IP de ZVM
+foreach ($ipZVM in $ipsZVM) {
+    Write-Host "Conectándose a $ipZVM..."
+
+    try {
+        # Conectarse al ZVM utilizando cmdlets o comandos específicos según la herramienta o SDK que estés utilizando
+
+        # Ejemplo: Conexión a ZVM y obtención de la lista de VMs protegidas utilizando cmdlets de una hipotética herramienta llamada "ZVMTool"
+        Connect-ZVMTool -IPAddress $ipZVM -Credential (Get-Credential)
+        $vmsProtegidas = Get-ZVMToolProtectedVMs
+
+        # Mostrar la lista de VMs protegidas
+        Write-Host "VMs protegidas en $ipZVM:"
+        foreach ($vmProtegida in $vmsProtegidas) {
+            Write-Host $vmProtegida
+        }
+
+        # Desconectarse del ZVM
+        Disconnect-ZVMTool
+
+    } catch {
+        Write-Host "Error al conectarse a $ipZVM: $_"
+    }
+
+    Write-Host "Conexión a $ipZVM completada."
+}
+Asegúrate de adaptar el script según las herramientas o SDKs específicos que estés utilizando para conectarte a ZVM y obtener la lista de VMs 
+protegidas. El ejemplo anterior utiliza cmdlets hipotéticos (Connect-ZVMTool, Get-ZVMToolProtectedVMs, Disconnect-ZVMTool) como referencia, 
+por lo que deberás reemplazarlos con los comandos reales correspondientes. También, asegúrate de proporcionar la ruta correcta al archivo 
+de texto que contiene las IPs de ZVM en la variable $archivoIPs.
+
+Ten en cuenta que este es solo un ejemplo genérico y puede requerir modificaciones adicionales para adaptarse a tu entorno y herramientas específicas.
