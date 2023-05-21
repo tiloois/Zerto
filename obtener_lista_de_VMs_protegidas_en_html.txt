@@ -83,3 +83,92 @@ Write-Host "Exportación completada. La lista de VMs protegidas se ha guardado e
 
 Recuerda adaptar el script según las herramientas o SDKs específicos que estés utilizando para conectarte a ZVM y obtener la lista de VMs 
 protegidas con sus respectivos datos. Además, puedes agregar más
+
+
+
+
+Aquí tienes un ejemplo de script en PowerShell que obtiene la lista de IPs de ZVM desde un archivo de texto, se conecta a cada uno de ellos utilizando la API REST de Zerto para obtener la lista de VMs protegidas con todos los datos de cada VM, y luego exporta la lista de VMs en una tabla con formato HTML:
+
+```powershell
+# Importar el módulo de PowerShell para consumir servicios REST
+Import-Module -Name PowerShellGet
+Install-Module -Name PowerShellRestMethod -Force
+
+# Ruta al archivo de texto que contiene las IPs de ZVM (una IP por línea)
+$archivoIPs = "C:\Ruta\Archivo\ips_zvm.txt"
+
+# Ruta de salida para el archivo HTML
+$rutaSalidaHTML = "C:\Ruta\Archivo\vm_protegidas.html"
+
+# Leer el archivo de texto y obtener las IPs de ZVM
+$ipsZVM = Get-Content $archivoIPs
+
+# Crear una lista para almacenar los datos de las VMs protegidas
+$listaVMsProtegidas = @()
+
+# Recorrer cada IP de ZVM
+foreach ($ipZVM in $ipsZVM) {
+    Write-Host "Conectándose a $ipZVM..."
+
+    try {
+        # Configurar los parámetros de la solicitud REST
+        $headers = @{
+            "Accept" = "application/json"
+        }
+        $url = "https://$ipZVM/v1/vms"
+
+        # Realizar la solicitud GET a la API REST de Zerto para obtener la lista de VMs protegidas
+        $response = Invoke-RestMethod -Uri $url -Headers $headers -Method Get
+
+        # Agregar los datos de las VMs protegidas a la lista
+        foreach ($vmProtegida in $response) {
+            $datosVM = @{
+                "Nombre" = $vmProtegida.VMName
+                "ID" = $vmProtegida.VMIdentifier
+                "Estado" = $vmProtegida.VMState
+                # Agrega más propiedades según los datos que desees incluir en la tabla
+            }
+            $listaVMsProtegidas += New-Object PSObject -Property $datosVM
+        }
+
+    } catch {
+        Write-Host "Error al conectarse a $ipZVM: $_"
+    }
+
+    Write-Host "Conexión a $ipZVM completada."
+}
+
+# Exportar la lista de VMs protegidas a una tabla con formato HTML
+$tablaHTML = $listaVMsProtegidas | ConvertTo-Html -Fragment | Out-String
+
+# Crear el contenido HTML completo
+$htmlCompleto = @"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de VMs Protegidas</h1>
+    $tablaHTML
+</body>
+</html>
+"@
+
+# Guardar el contenido HTML en un archivo
+$htmlCompleto | Out-File -FilePath $rutaSalidaHTML
+
+Write-Host "Exportación completada. La lista de VMs protegidas se ha guardado en $rutaSalidaHTML."
+```
+
+Ten en cuenta que este ejemplo utiliza el módulo `PowerShellRestMethod` para realizar solicitudes REST a la API de Zerto. Asegúrate de tener el módulo instalado
+
+
