@@ -1,0 +1,85 @@
+genera un script obtener la lista de IPs de ZVM desde un fichero de texto, conectar a cada uno de ellos con comando cmdlet para obtener 
+la lista de VMs protegidas incluyendo todos los datos de cada VM, al final exportar la lista de VMs en una tabla con formato html
+
+
+Aquí tienes un ejemplo de script en PowerShell que obtiene la lista de IPs de ZVM desde un archivo de texto, se conecta a cada uno de ellos
+utilizando cmdlets para obtener la lista de VMs protegidas con todos los datos de cada VM y luego exporta la lista de VMs en una tabla con formato HTML:
+
+```powershell
+# Ruta al archivo de texto que contiene las IPs de ZVM (una IP por línea)
+$archivoIPs = "C:\Ruta\Archivo\ips_zvm.txt"
+
+# Ruta de salida para el archivo HTML
+$rutaSalidaHTML = "C:\Ruta\Archivo\vm_protegidas.html"
+
+# Leer el archivo de texto y obtener las IPs de ZVM
+$ipsZVM = Get-Content $archivoIPs
+
+# Crear una lista para almacenar los datos de las VMs protegidas
+$listaVMsProtegidas = @()
+
+# Recorrer cada IP de ZVM
+foreach ($ipZVM in $ipsZVM) {
+    Write-Host "Conectándose a $ipZVM..."
+
+    try {
+        # Conectarse al ZVM utilizando cmdlets o comandos específicos según la herramienta o SDK que estés utilizando
+
+        # Ejemplo: Conexión a ZVM y obtención de la lista de VMs protegidas con todos los datos utilizando cmdlets de una hipotética herramienta llamada "ZVMTool"
+        Connect-ZVMTool -IPAddress $ipZVM -Credential (Get-Credential)
+        $vmsProtegidas = Get-ZVMToolProtectedVMs
+
+        # Agregar los datos de las VMs protegidas a la lista
+        foreach ($vmProtegida in $vmsProtegidas) {
+            $datosVM = @{
+                "Nombre" = $vmProtegida.Nombre
+                "ID" = $vmProtegida.ID
+                "Estado" = $vmProtegida.Estado
+                # Agrega más propiedades según los datos que desees incluir en la tabla
+            }
+            $listaVMsProtegidas += New-Object PSObject -Property $datosVM
+        }
+
+        # Desconectarse del ZVM
+        Disconnect-ZVMTool
+
+    } catch {
+        Write-Host "Error al conectarse a $ipZVM: $_"
+    }
+
+    Write-Host "Conexión a $ipZVM completada."
+}
+
+# Exportar la lista de VMs protegidas a una tabla con formato HTML
+$tablaHTML = $listaVMsProtegidas | ConvertTo-Html -Fragment | Out-String
+
+# Crear el contenido HTML completo
+$htmlCompleto = @"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de VMs Protegidas</h1>
+    $tablaHTML
+</body>
+</html>
+"@
+
+# Guardar el contenido HTML en un archivo
+$htmlCompleto | Out-File -FilePath $rutaSalidaHTML
+
+Write-Host "Exportación completada. La lista de VMs protegidas se ha guardado en $rutaSalidaHTML."
+```
+
+Recuerda adaptar el script según las herramientas o SDKs específicos que estés utilizando para conectarte a ZVM y obtener la lista de VMs 
+protegidas con sus respectivos datos. Además, puedes agregar más
