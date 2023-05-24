@@ -1,9 +1,11 @@
-Genera un script en powershell para proteger con Zerto una lista de VMs obtenida desde un fichero de texto con valores separados por coma, los valores del fichero son: vmname,destsite,destesx,destds,destnet1,destnet2,destnet3,destfolder
+Genera un script en powershell para proteger con Zerto una lista de VMs obtenida desde un fichero de texto con valores separados por coma, 
+los valores del fichero son: vmname,destsite,destesx,destds,destnet1,destnet2,destnet3,destfolder
 
 2 / 3
 
 
-Aquí tienes un script en PowerShell que puedes utilizar para proteger una lista de VMs con Zerto. El script lee los valores de un archivo de texto con valores separados por comas y utiliza esos valores para configurar la protección de las VMs en Zerto.
+Aquí tienes un script en PowerShell que puedes utilizar para proteger una lista de VMs con Zerto. El script lee los valores de un archivo 
+de texto con valores separados por comas y utiliza esos valores para configurar la protección de las VMs en Zerto.
 
 ```powershell
 # Ruta al archivo de texto con los valores de las VMs
@@ -57,12 +59,14 @@ Ten en cuenta que este script es solo un ejemplo y puede requerir modificaciones
 
 
 
-Genera un script en powershell udando zerto cmdlets para proteger una lista de VMs obtenida desde un fichero de texto con valores separados por coma, los valores del fichero son: vmname,destsite,destesx,destds,destnet1,destnet2,destnet3,destfolder
+Genera un script en powershell udando zerto cmdlets para proteger una lista de VMs obtenida desde un fichero de texto con valores separados por coma, 
+los valores del fichero son: vmname,destsite,destesx,destds,destnet1,destnet2,destnet3,destfolder
 
 3 / 3
 
 
-Aquí tienes un ejemplo de un script en PowerShell que utiliza los cmdlets de Zerto para proteger una lista de máquinas virtuales (VMs) utilizando los valores de un archivo de texto separado por comas. Asegúrate de reemplazar "ruta_al_archivo" con la ubicación real de tu archivo de texto.
+Aquí tienes un ejemplo de un script en PowerShell que utiliza los cmdlets de Zerto para proteger una lista de máquinas virtuales (VMs) utilizando 
+los valores de un archivo de texto separado por comas. Asegúrate de reemplazar "ruta_al_archivo" con la ubicación real de tu archivo de texto.
 
 ```powershell
 # Importar los módulos de Zerto
