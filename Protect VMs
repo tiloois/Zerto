@@ -1,0 +1,108 @@
+Genera un script en powershell para proteger con Zerto una lista de VMs obtenida desde un fichero de texto con valores separados por coma, los valores del fichero son: vmname,destsite,destesx,destds,destnet1,destnet2,destnet3,destfolder
+
+2 / 3
+
+
+Aquí tienes un script en PowerShell que puedes utilizar para proteger una lista de VMs con Zerto. El script lee los valores de un archivo de texto con valores separados por comas y utiliza esos valores para configurar la protección de las VMs en Zerto.
+
+```powershell
+# Ruta al archivo de texto con los valores de las VMs
+$archivoVMs = "C:\ruta\al\archivo.txt"
+
+# Función para crear la protección de una VM en Zerto
+function ProtegerVM([string]$vmname, [string]$destsite, [string]$destesx, [string]$destds, [string]$destnet1, [string]$destnet2, [string]$destnet3, [string]$destfolder) {
+    # Aquí colocas la lógica para proteger la VM en Zerto
+    # Por ejemplo, puedes utilizar comandos de Zerto para crear la protección
+    
+    Write-Host "Protegiendo la VM: $vmname"
+    Write-Host "Destino: $destsite"
+    Write-Host "ESX: $destesx"
+    Write-Host "Datastore: $destds"
+    Write-Host "Red 1: $destnet1"
+    Write-Host "Red 2: $destnet2"
+    Write-Host "Red 3: $destnet3"
+    Write-Host "Carpeta destino: $destfolder"
+    
+    # Aquí colocas los comandos de Zerto para crear la protección
+    # Ejemplo:
+    # Add-ZertoProtection -VMName $vmname -DestinationSite $destsite -ESX $destesx -Datastore $destds -Network1 $destnet1 -Network2 $destnet2 -Network3 $destnet3 -DestinationFolder $destfolder
+}
+
+# Leer el archivo de texto
+$contenidoArchivo = Get-Content $archivoVMs
+
+# Recorrer las líneas del archivo y procesar cada VM
+foreach ($linea in $contenidoArchivo) {
+    # Dividir la línea en los valores separados por comas
+    $valores = $linea.Split(",")
+    
+    # Obtener los valores individuales
+    $vmname = $valores[0].Trim()
+    $destsite = $valores[1].Trim()
+    $destesx = $valores[2].Trim()
+    $destds = $valores[3].Trim()
+    $destnet1 = $valores[4].Trim()
+    $destnet2 = $valores[5].Trim()
+    $destnet3 = $valores[6].Trim()
+    $destfolder = $valores[7].Trim()
+    
+    # Llamar a la función para proteger la VM con los valores obtenidos
+    ProtegerVM -vmname $vmname -destsite $destsite -destesx $destesx -destds $destds -destnet1 $destnet1 -destnet2 $destnet2 -destnet3 $destnet3 -destfolder $destfolder
+}
+```
+
+Asegúrate de reemplazar `"C:\ruta\al\archivo.txt"` con la ruta real al archivo de texto que contiene los valores de las VMs. Además, dentro de la función `ProtegerVM`, deberás agregar la lógica específica de Zerto para crear la protección de la VM.
+
+Ten en cuenta que este script es solo un ejemplo y puede requerir modificaciones según tu configuración y los comandos específ
+
+
+
+Genera un script en powershell udando zerto cmdlets para proteger una lista de VMs obtenida desde un fichero de texto con valores separados por coma, los valores del fichero son: vmname,destsite,destesx,destds,destnet1,destnet2,destnet3,destfolder
+
+3 / 3
+
+
+Aquí tienes un ejemplo de un script en PowerShell que utiliza los cmdlets de Zerto para proteger una lista de máquinas virtuales (VMs) utilizando los valores de un archivo de texto separado por comas. Asegúrate de reemplazar "ruta_al_archivo" con la ubicación real de tu archivo de texto.
+
+```powershell
+# Importar los módulos de Zerto
+Import-Module -Name Zerto
+
+# Obtener la lista de VMs desde el archivo de texto
+$listaVMs = Import-Csv -Path "ruta_al_archivo" -Header "vmname", "destsite", "destesx", "destds", "destnet1", "destnet2", "destnet3", "destfolder"
+
+# Conectar al servidor de Zerto
+Connect-ZertoServer -Server "nombre_del_servidor" -Port "puerto" -Credentials (Get-Credential)
+
+# Proteger las VMs de la lista
+foreach ($vm in $listaVMs) {
+    $vmName = $vm.vmname
+    $destSite = $vm.destsite
+    $destEsx = $vm.destesx
+    $destDs = $vm.destds
+    $destNet1 = $vm.destnet1
+    $destNet2 = $vm.destnet2
+    $destNet3 = $vm.destnet3
+    $destFolder = $vm.destfolder
+
+    # Crear la configuración de protección
+    $vmProtectionConfig = New-ZertoVpgConfiguration -VmName $vmName -DestinationSite $destSite -DestinationEsx $destEsx -DestinationDatastore $destDs -DestinationNetwork1 $destNet1 -DestinationNetwork2 $destNet2 -DestinationNetwork3 $destNet3 -DestinationFolder $destFolder
+
+    # Iniciar la protección de la VM
+    Start-ZertoProtection -VpgConfiguration $vmProtectionConfig
+}
+
+# Desconectar del servidor de Zerto
+Disconnect-ZertoServer
+```
+
+Asegúrate de reemplazar "nombre_del_servidor" y "puerto" con los detalles de conexión correctos para tu servidor de Zerto. El script importa el módulo de Zerto, establece la conexión con el servidor, recorre la lista de VMs y crea una configuración de protección para cada una utilizando los valores del archivo de texto. Luego, inicia la protección de cada VM y finalmente se desconecta del servidor de Zerto.
+
+Ten en cuenta que este es solo un ejemplo básico y puede requerir modificaciones adicionales según tus requisitos específicos y la configuración de tu entorno Zerto. Asegúrate de consultar la documentación oficial de Zerto y los cmdlets disponibles para obtener más información sobre cómo personalizar el script según tus necesidades.
+
+
+
+
+
+
+
